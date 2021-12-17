@@ -1,13 +1,14 @@
 use std::io;
 use termion::raw::IntoRawMode;
+use tui::backend::CrosstermBackend;
 use tui::backend::TermionBackend;
 use tui::layout::{Constraint, Direction, Layout};
 use tui::widgets::{Block, Borders, Widget};
 use tui::Terminal;
 
 fn main() -> Result<(), io::Error> {
-    let stdout = io::stdout().into_raw_mode()?;
-    let backend = TermionBackend::new(stdout);
+    let stdout = io::stdout();
+    let backend = CrosstermBackend::new(stdout);
     let mut terminal = Terminal::new(backend)?;
     terminal.draw(|f| {
         let chunks = Layout::default()
@@ -29,4 +30,3 @@ fn main() -> Result<(), io::Error> {
     })?;
     Ok(())
 }
-
