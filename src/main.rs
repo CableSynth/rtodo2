@@ -1,15 +1,18 @@
-use std::{io, thread, time::Duration};
-use tui::{
-    backend::CrosstermBackend,
-    widgets::{Widget, Block, Borders},
-    layout::{Layout, Constraint, Direction},
-    Terminal
-};
 use crossterm::{
     event::{self, DisableMouseCapture, EnableMouseCapture, Event, KeyCode},
     execute,
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
+use std::{error::Error, io};
+use tui::{
+    backend::{Backend, CrosstermBackend},
+    layout::{Constraint, Direction, Layout},
+    style::{Color, Modifier, Style},
+    text::{Span, Spans, Text},
+    widgets::{Block, Borders, List, ListItem, Paragraph},
+    Frame, Terminal,
+};
+use unicode_width::UnicodeWidthStr;
 
 fn main() -> Result<(), io::Error> {
     // setup terminal
@@ -22,7 +25,7 @@ fn main() -> Result<(), io::Error> {
     terminal.draw(|f| {
         let size = f.size();
         let block = Block::default()
-            .title("Block")
+            .title("R-TODO2")
             .borders(Borders::ALL);
         f.render_widget(block, size);
     })?;
@@ -39,4 +42,8 @@ fn main() -> Result<(), io::Error> {
     terminal.show_cursor()?;
 
     Ok(())
+}
+
+fn ui<B: Backend>(terminal: &mut Terminal<B>) -> io::Result<()> {
+    
 }
