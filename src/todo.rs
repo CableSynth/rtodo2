@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
-use serde_json::Result;
+use serde_json::Value;
 use std::{env, io};
-use std::io::Read;
+use std::io::{Read, Write};
 use std::{
     cell::Cell,
     fs::{self, DirBuilder},
@@ -99,5 +99,12 @@ impl Todos {
 
     fn add(&mut self, todo: Todo) {
         self.todos.push(todo)
+    }
+    fn save (&mut self) -> Result<(), io::Error> {
+        let encoded = serde_json::to_string(&self.todos)?;
+        let file_path = shellexpand::full(TODO_FILE).unwrap();
+        let mut file = fs::OpenOptions::new().write(true).open(file_path.as_ref())?;
+        file.write_all(encoded.as_bytes())?;
+        Ok(())
     }
 }

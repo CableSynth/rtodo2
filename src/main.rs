@@ -28,6 +28,8 @@ mod todo;
 enum InputMode {
     Normal,
     Editing,
+    // Adding,
+    // Removing,
 }
 
 /// App holds the state of the application
