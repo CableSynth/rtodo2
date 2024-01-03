@@ -28,8 +28,8 @@ mod todo;
 enum InputMode {
     Normal,
     Editing,
-    // Adding,
-    // Removing,
+    Adding,
+    Removing,
 }
 
 /// App holds the state of the application
@@ -40,6 +40,8 @@ struct App {
     input_mode: InputMode,
     /// History of recorded messages
     messages: Vec<String>,
+    ///Todos
+    todos: todo::Todos,
 }
 
 impl Default for App {
@@ -48,6 +50,7 @@ impl Default for App {
             input: String::new(),
             input_mode: InputMode::Normal,
             messages: Vec::new(),
+            todos: todo::Todos::new(),
         }
     }
 }
@@ -81,6 +84,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 }
 
 fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Result<()> {
+    app.todos.load();
     loop {
         terminal.draw(|f| ui(f, &app))?;
 
@@ -92,6 +96,12 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Result<(
                     }
                     KeyCode::Char('q') => {
                         return Ok(());
+                    }
+                    KeyCode::Char('a') => {
+                        app.input_mode = InputMode::Adding;
+                    }
+                    KeyCode::Char('d') => {
+                        app.input_mode = InputMode::Removing;
                     }
                     _ => {}
                 },
@@ -108,6 +118,15 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Result<(
                     KeyCode::Esc => {
                         app.input_mode = InputMode::Normal;
                     }
+                    _ => {}
+                },
+                InputMode::Adding => match key.code {
+                    KeyCode::Esc => {
+                        app.input_mode = InputMode::Normal;
+                    }
+                    _ => {}
+                },
+                InputMode::Removing => match key.code {
                     _ => {}
                 },
             }
@@ -150,6 +169,26 @@ fn ui<B: Backend>(f: &mut Frame<B>, app: &App) {
             ],
             Style::default(),
         ),
+        InputMode::Adding => (
+            vec![
+                Span::raw("Press "),
+                Span::styled("TODO", Style::default().add_modifier(Modifier::BOLD)),
+                Span::raw(" Build out this, "),
+                Span::styled("Enter", Style::default().add_modifier(Modifier::BOLD)),
+                Span::raw(" to record the message"),
+            ],
+            Style::default(),
+        ),
+        InputMode::Removing => (
+            vec![
+                Span::raw("Press "),
+                Span::styled("TODO", Style::default().add_modifier(Modifier::BOLD)),
+                Span::raw(" Build out this, "),
+                Span::styled("Enter", Style::default().add_modifier(Modifier::BOLD)),
+                Span::raw(" to record the message"),
+            ],
+            Style::default(),
+        ),
     };
     let mut text = Text::from(Spans::from(msg));
     text.patch_style(style);
@@ -160,6 +199,8 @@ fn ui<B: Backend>(f: &mut Frame<B>, app: &App) {
         .style(match app.input_mode {
             InputMode::Normal => Style::default(),
             InputMode::Editing => Style::default().fg(Color::Yellow),
+            InputMode::Adding => Style::default(),
+            InputMode::Removing => Style::default(),
         })
         .block(Block::default().borders(Borders::ALL).title("Input"));
     f.render_widget(input, chunks[1]);
@@ -177,6 +218,12 @@ fn ui<B: Backend>(f: &mut Frame<B>, app: &App) {
                 chunks[1].y + 1,
             )
         }
+        InputMode::Adding => {
+            //TODO: ADD STUFF
+        }
+        InputMode::Removing => {
+            //TODO: ADD STUFF
+        }
     }
 
     let messages: Vec<ListItem> = app
@@ -192,3 +239,4 @@ fn ui<B: Backend>(f: &mut Frame<B>, app: &App) {
         List::new(messages).block(Block::default().borders(Borders::ALL).title("Messages"));
     f.render_widget(messages, chunks[2]);
 }
+

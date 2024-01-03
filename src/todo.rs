@@ -11,14 +11,14 @@ use std::{
 const TODO_FILE: &str = "~/.rtodo2/todo_file";
 
 #[derive(Debug, Serialize, Deserialize, Copy, Clone)]
-enum Status {
+pub enum Status {
     Open,
     Done,
     Overdue,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-enum Lifespan {
+pub enum Lifespan {
     Day,
     Week,
     Month,
@@ -27,7 +27,7 @@ enum Lifespan {
 }
 
 #[derive(Debug, Serialize, Deserialize, Copy, Clone)]
-enum LifeCycle {
+pub enum LifeCycle {
     Once,
     Daily,
     Weekly,
@@ -36,7 +36,7 @@ enum LifeCycle {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-struct Todo {
+pub struct Todo {
     title: String,
     description: String,
     status: Cell<Status>,
@@ -62,16 +62,16 @@ impl Todo {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-struct Todos {
+pub(crate) struct Todos {
     todos: Vec<Todo>,
 }
 
 impl Todos {
-    fn new() -> Self {
+    pub fn new() -> Self {
         Self { todos: vec![] }
     }
 
-    fn load(&mut self) {
+    pub fn load(&mut self) {
         let file_path = shellexpand::full(TODO_FILE).unwrap();
         let path = path::Path::new(file_path.as_ref());
         let prefix = path.parent().unwrap();
@@ -93,14 +93,14 @@ impl Todos {
         self.todos = serde_json::from_str(&data).unwrap();
     }
 
-    fn get_all(&self) -> &Vec<Todo> {
+    pub fn get_all(&self) -> &Vec<Todo> {
         &self.todos
     }
 
-    fn add(&mut self, todo: Todo) {
+    pub fn add(&mut self, todo: Todo) {
         self.todos.push(todo)
     }
-    fn save (&mut self) -> Result<(), io::Error> {
+    pub fn save (&mut self) -> Result<(), io::Error> {
         let encoded = serde_json::to_string(&self.todos)?;
         let file_path = shellexpand::full(TODO_FILE).unwrap();
         let mut file = fs::OpenOptions::new().write(true).open(file_path.as_ref())?;
